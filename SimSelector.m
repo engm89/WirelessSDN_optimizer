@@ -18,7 +18,7 @@ Operator2_bts_locations=[150,150,150,200,175,175,200,200,200,150];
 
 
 % CONST for the simultor
-settings.number_of_avg_runs=2;
+settings.number_of_avg_runs=1;
 settings.max_number_of_controllers=6;
 
 settings.upper_bound_xy_limit=2000;
@@ -31,7 +31,7 @@ settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-  Carrom=false;
+Carrom=false;
   
   
   
@@ -65,11 +65,68 @@ settings.starting_pos=0.5;
         sample=[i,x,time,all_best];
         results = [results;sample];
   end
-  Filename = strcat(algo_name,sprintf('_%s.xlsx', datestr(now,'mm-dd-yyyy-HH-MM')));
-  csvwrite_with_headers('results.csv',results,csv_header)
+  Filename = strcat(algo_name,sprintf('_%s.', datestr(now,'mm-dd-yyyy-HH-MM')));
+  csvwrite_with_headers(strcat(strcat('outputs\Results_',Filename),'xlsx'),results,csv_header);
   
+  fid = fopen(strcat(strcat('outputs\Experiment_',Filename),'.txt'),'w');
+ 
+   fprintf(fid, '%s','Operator1_bts_locations ');
+   fprintf(fid, '%d\n',Operator1_bts_locations);
+   
+   fprintf(fid, '%s','Operator2_bts_locations ');
+   fprintf(fid, '%d\n',Operator2_bts_locations);
+      
+   fprintf(fid, '%s','Operator1_coefficient_parameters ');
+   fprintf(fid, '%d\n',Operator1_coefficient_parameters);
+   
+   fprintf(fid, '%s','Operator1_coefficient_parameters ');
+   fprintf(fid, '%d\n',Operator1_coefficient_parameters);
+   
+   fprintf(fid, '%s','thetha_l ');
+   fprintf(fid, '%d\n',thetha_l);
+      
+   fprintf(fid, '%s','alpa ');
+   fprintf(fid, '%d\n',alpa);
+   
+   fprintf(fid, '%s','beta_l ');
+   fprintf(fid, '%d\n',beta_l);
+   
+   fprintf(fid, '%s','pl ');
+   fprintf(fid, '%d\n',pl);
   
-  
+    fprintf(fid, '%s','number_of_avg_runs ');
+   fprintf(fid, '%d\n',settings.number_of_avg_runs);
+   
+    fprintf(fid, '%s','max_number_of_controllers ');
+   fprintf(fid, '%d\n',settings.max_number_of_controllers);
+   
+    fprintf(fid, '%s','upper_bound_xy_limit ');
+   fprintf(fid, '%d\n',settings.upper_bound_xy_limit);
+   
+    fprintf(fid, '%s','lower_bound_xy_limit ');
+   fprintf(fid, '%d\n',settings.lower_bound_xy_limit);
+   
+    fprintf(fid, '%s','max_iterations ');
+   fprintf(fid, '%d\n',settings.max_iterations);
+   
+    fprintf(fid, '%s','pool_computing ');
+   fprintf(fid, '%d\n',settings.pool_computing);
+   
+    fprintf(fid, '%s','on_lb ');
+   fprintf(fid, '%d\n',settings.on_lb);
+   
+    fprintf(fid, '%s','off_lb ');
+   fprintf(fid, '%d\n',settings.off_lb);
+   
+   fprintf(fid, '%s','starting_pos ');
+   fprintf(fid, '%d\n',settings.starting_pos);
+   
+    fprintf(fid, '%s','Carrom ');
+    fprintf(fid, '%d\n',Carrom);
+
+   fclose(fid);
+
+   
   
   
   
