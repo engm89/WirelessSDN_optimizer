@@ -1,10 +1,10 @@
-clear all
+% clear all memory
+clear all;
+
 
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
-       Operator1_bts_locations Operator2_bts_locations;
-
-   
+       Operator1_bts_locations Operator2_bts_locations;  
 thetha_l=0.2;
 alpa=4;
 beta_l=1;
@@ -18,32 +18,33 @@ Operator2_bts_locations=[150,150,150,200,175,175,200,200,200,150];
 
 
 % CONST for the simultor
-settings.number_of_avg_runs=1;
-settings.max_number_of_controllers=6;
+settings.number_of_avg_runs=10;
+settings.max_number_of_controllers=8;
 
 settings.upper_bound_xy_limit=2000;
 settings.lower_bound_xy_limit=0;
 
-settings.max_iterations=10;
+settings.max_iterations=100000;
 
-settings.pool_computing=false;
+settings.pool_computing=true;
+
 settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-Carrom=false;
+Carrom=true;
   
   
-  
-  csv_header={};
-  csv_header=[csv_header,'index'];
-  for i=1:settings.max_number_of_controllers
-      csv_header= [csv_header,strcat('x', num2str(i))];
-      csv_header= [csv_header,strcat('y', num2str(i))];
-  end
-   for i=1:settings.max_number_of_controllers
-      csv_header= [csv_header,strcat('is_on', num2str(i))];
-   end
+  % create the csv header
+ csv_header={};
+ csv_header=[csv_header,'index'];
+ for i=1:settings.max_number_of_controllers
+     csv_header= [csv_header,strcat('x', num2str(i))];
+     csv_header= [csv_header,strcat('y', num2str(i))];
+ end
+ for i=1:settings.max_number_of_controllers
+     csv_header= [csv_header,strcat('is_on', num2str(i))];
+ end
    csv_header= [csv_header,'Time'];
    csv_header= [csv_header,'Total val'];
    csv_header= [csv_header,'AverageLatency1'];
@@ -53,6 +54,7 @@ Carrom=false;
    csv_header= [csv_header,'AverageLinkFailure2'];
    csv_header= [csv_header,'Transparency2'];
   
+  % run the expimrents
   results = [];
   for i=1:settings.number_of_avg_runs
       if Carrom
@@ -65,6 +67,9 @@ Carrom=false;
         sample=[i,x,time,all_best];
         results = [results;sample];
   end
+  
+  
+  % write out
   Filename = strcat(algo_name,sprintf('_%s.', datestr(now,'mm-dd-yyyy-HH-MM')));
   csvwrite_with_headers(strcat(strcat('outputs\Results_',Filename),'xlsx'),results,csv_header);
   
@@ -126,7 +131,6 @@ Carrom=false;
 
    fclose(fid);
 
-   
   
   
   
