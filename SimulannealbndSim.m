@@ -41,8 +41,8 @@ try
     if settings.pool_computing
     parpool;
     end
-    
-  options = saoptimset('MaxIter',settings.max_iterations);
+updater=@(x) x*0.8;
+  options = saoptimset('MaxIter',settings.max_iterations,'InitialTemperature',1,'TemperatureFcn',updater);
   tic;
   % get the locations x's
   [final_x,fval,exitFlag,output]=simulannealbnd(ObjectiveFunction,x,lb,ub,options);

@@ -5,10 +5,11 @@ clear all;
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        Operator1_bts_locations Operator2_bts_locations;  
-thetha_l=0.2;
-alpa=4;
-beta_l=1;
-pl=23; 
+
+thetha_l=0.001; 
+alpa=4; 
+beta_l=1; %
+pl=23;  %
 
 Operator1_coefficient_parameters=[1/3,1/3,1/3];
 Operator2_coefficient_parameters=[1/3,1/3,1/3];
@@ -24,15 +25,15 @@ settings.max_number_of_controllers=8;
 settings.upper_bound_xy_limit=2000;
 settings.lower_bound_xy_limit=0;
 
-settings.max_iterations=100000;
+settings.max_iterations=10;
 
-settings.pool_computing=true;
+settings.pool_computing=false;
 
 settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-Carrom=true;
+Carrom=false;
   
   
   % create the csv header
