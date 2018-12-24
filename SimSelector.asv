@@ -37,9 +37,14 @@ Carrom=false;
 
 % simulanneal settings
 
-al_settings.InitialTemperature=5;
-al_settings.ReannealInterval=10;
-al_settings.StallIterLimit=10;
+al_settings.InitialTemperature=100;
+% re anneal every X itreations.
+al_settings.ReannealInterval=100;
+% the cooling parm
+al_settings.cooling=0.5;
+% stop after X itretions in which the change wasn't higher then "TolFun" 
+al_settings.StallIterLimit=9;
+% early stop 
 al_settings.TolFun=10^-2;
   
   % create the csv header
@@ -149,6 +154,11 @@ al_settings.TolFun=10^-2;
     
      fprintf(fid, '%s','TolFun: ');
     fprintf(fid, '%d\n',al_settings.TolFun);
+    
+     fprintf(fid, '%s','cooling: ');
+    fprintf(fid, '%d\n',al_settings.cooling);
+    
+    
    fclose(fid);
 
   

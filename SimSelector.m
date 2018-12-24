@@ -1,12 +1,12 @@
 % clear all memory
 clear all;
 
-
+draw=true;
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        Operator1_bts_locations Operator2_bts_locations;  
 
-thetha_l=0.001; 
+thetha_l=1; 
 alpa=4; 
 beta_l=1; %
 pl=23;  %
@@ -22,7 +22,7 @@ Operator2_bts_locations=[150,150,150,200,175,175,200,200,200,150];
 settings.number_of_avg_runs=1;
 settings.max_number_of_controllers=8;
 
-settings.upper_bound_xy_limit=2000;
+settings.upper_bound_xy_limit=250;
 settings.lower_bound_xy_limit=0;
 
 settings.max_iterations=100;
@@ -37,15 +37,15 @@ Carrom=false;
 
 % simulanneal settings
 
-al_settings.InitialTemperature=10;
+al_settings.InitialTemperature=100000;
 % re anneal every X itreations.
-al_settings.ReannealInterval=10;
+al_settings.ReannealInterval=100;
 % the cooling parm
-al_settings.cooling=0.8;
+al_settings.cooling=0.9999;
 % stop after X itretions in which the change wasn't higher then "TolFun" 
-al_settings.StallIterLimit=9;
+al_settings.StallIterLimit=15;
 % early stop 
-al_settings.TolFun=10^-2;
+al_settings.TolFun=10^-5;
   
   % create the csv header
  csv_header={};
@@ -155,19 +155,30 @@ al_settings.TolFun=10^-2;
      fprintf(fid, '%s','TolFun: ');
     fprintf(fid, '%d\n',al_settings.TolFun);
     
-     fprintf(fid, '%s','cooling: ');
+    fprintf(fid, '%s','cooling: ');
     fprintf(fid, '%d\n',al_settings.cooling);
     
     
-   fclose(fid);
+    fclose(fid);
+
 
   
+  x1=Operator1_bts_locations(1:2:end);
+  y1=Operator1_bts_locations(2:2:end);
+  
+  x2=Operator2_bts_locations(1:2:end);
+  y2=Operator2_bts_locations(2:2:end);
   
   
+  c_x_1=x(1:2:size(Operator1_bts_locations,2));
+  c_y_1=x(2:2:size(Operator1_bts_locations,2));
   
-  
-  
-  
-  
-  
-  
+  c_x_2=x(size(Operator1_bts_locations,2)+1:2:size(Operator1_bts_locations,2)+size(Operator2_bts_locations,2));
+  c_y_2=x(size(Operator1_bts_locations,2)+2:2:size(Operator1_bts_locations,2)+size(Operator2_bts_locations,2));
+
+  if draw
+    scatter(x1,y1,'o','r'); hold on;
+    scatter(x2,y2,'o','g'); hold on;
+    scatter(c_x_1,c_y_1,'x','r'); hold on;
+     scatter(c_x_2,c_y_2,'x','g'); hold on;
+  end
