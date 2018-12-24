@@ -1,4 +1,4 @@
-function [final_x,all_best,time] = SimulannealbndSim(settings)
+function [final_x,all_best,time] = SimulannealbndSim(settings,al_settings)
 
 
 % the locations of controllers from the following foramt :
@@ -41,9 +41,12 @@ try
     if settings.pool_computing
     parpool;
     end
-updater=@(x) x*0.8;
-  options = saoptimset('MaxIter',settings.max_iterations,'InitialTemperature',1,'TemperatureFcn',updater);
-  tic;
+  temp_updater= @( optim,options ) options.InitialTemperature.*(al_settings.cooling.^optim.k);
+  
+  options = saoptimset('MaxIter',settings.max_iterations,'InitialTemperature',...
+      al_settings.InitialTemperature,'ReannealInterval', al_settings.ReannealInterval,...
+      'StallIterLimit',al_settings.StallIterLimit,'TolFun',al_settings.TolFun,'TemperatureFcn',temp_updater);
+  tic; 
   % get the locations x's
   [final_x,fval,exitFlag,output]=simulannealbnd(ObjectiveFunction,x,lb,ub,options);
   % get the algorithem results
@@ -52,7 +55,7 @@ updater=@(x) x*0.8;
   %get time
   time=toc;
 catch ME
-    disp('Exit!')
+    disp('Crashed!')
 end
 
 % end parallel computing

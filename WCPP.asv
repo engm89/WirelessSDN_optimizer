@@ -70,10 +70,10 @@ end
 %% functions for Transparency
 %%
 
-function val=Ten(v)
-    global thetha_l alpa beta_l;
-    syms u;
-   val=((1/beta_l)*(thetha_l^(2/alpa))*int(1/(1+(u^(alpa/2))),'u',thetha_l^(-2/alpa),inf))/(v*log(1+thetha_l));
+function val=Ten(v,other_pl)
+    global thetha_l alpa beta_l pl;
+
+   val=((1/beta_l)*(thetha_l^(2/alpa))*int(,'r',thetha_l^(-2/alpa),inf))/(v*log(1+thetha_l));
 end
 
 function val=posion_lambda(nodes_location)
@@ -89,11 +89,13 @@ function val=append_locations(controller_placement,bts_locations)
 end
 
 function val=Transparency(controller_placement,bts_locations)
+    other_pl=AverageLinkFailure(controller_placement,bts_locations);
     total_locations=append_locations(controller_placement,bts_locations);
     v2=posion_lambda(total_locations);
     v1=posion_lambda(bts_locations);
-    val=(Ten(v2)-Ten(v1))/...
-        Ten(v1);
+    val=(Ten(v2,other_pl)-Ten(v1,other_pl))/...
+        Ten(v1,other_pl);
+    val=abs(val); % to be removed
 end
 
 
