@@ -46,7 +46,7 @@ while (k<m)
         xt=zt(1:n);
         yt=zt(n+1);
         [w,y1,y2,y3,y4,y5,y6]=WCPP(xt);
-%         ally=[ally w];
+
         funceval=funceval+1;
         if (w<yt)&(w<ybest)
             xbest=xt;
@@ -54,6 +54,9 @@ while (k<m)
             all_best=[w,y1,y2,y3,y4,y5,y6];
             allybest=[allybest ybest];
             break;
+        end
+        if (w==ybest)
+           break; 
         end
     end
     k=k+1;

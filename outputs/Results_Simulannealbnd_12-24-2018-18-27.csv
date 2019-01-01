@@ -1,2 +1,0 @@
-index,x1,y1,x2,y2,x3,y3,x4,y4,x5,y5,x6,y6,x7,y7,x8,y8,is_on1,is_on2,is_on3,is_on4,is_on5,is_on6,is_on7,is_on8,Time,Total val,AverageLatency1,AverageLinkFailure1,Transparency1,AverageLatency2,AverageLinkFailure2,Transparency2
-1,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,16.887,0.026961,0.0018549,0.8,-0.84571,0.0016646,0.8,-0.67692

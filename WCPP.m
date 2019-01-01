@@ -33,12 +33,15 @@ Operator2_controller_placement=Operator2_controller_placement.*usage2;
 Operator1_controller_placement(Operator1_controller_placement==0)=-1;
 Operator2_controller_placement(Operator2_controller_placement==0)=-1;
 
+
 val1=double(AverageLatency(Operator1_controller_placement,Operator1_bts_locations));
-val2=double(AverageLinkFailure(Operator1_controller_placement,Operator1_bts_locations));
+val2=double(AverageLinkFailure(Operator1_controller_placement,Operator1_bts_locations))
 val3=double(Transparency(Operator1_controller_placement,Operator1_bts_locations));
+
 val4=double(AverageLatency(Operator2_controller_placement,Operator2_bts_locations));
-val5=double(AverageLinkFailure(Operator2_controller_placement,Operator2_bts_locations));
+val5=double(AverageLinkFailure(Operator2_controller_placement,Operator2_bts_locations))
 val6=double(Transparency(Operator2_controller_placement,Operator2_bts_locations));
+
 val=Operator1_coefficient_parameters(1)*(val1)...
     +Operator1_coefficient_parameters(2)*(val2)...
     +Operator1_coefficient_parameters(3)*(val3)...
@@ -94,6 +97,7 @@ function val=Transparency(controller_placement,bts_locations)
     v1=posion_lambda(bts_locations);
     val=(Ten(v2)-Ten(v1))/...
         Ten(v1);
+    val=abs(val);
 end
 
 
@@ -113,4 +117,5 @@ function val=AverageLinkFailure(controller_placement,bts_locations)
         exp(-2*lambda_l_tilda*int(r*(s*pl*(r^(-alpa)))/(1+s*pl*(r^(-alpa))),'r',tu,inf))...
         *2*pi*lambda_l*tu*exp(-pi*lambda_l*(tu^2))...
         , 'tu', 0, inf);
+    val=1-val;
 end

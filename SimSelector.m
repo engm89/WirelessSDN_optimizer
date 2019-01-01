@@ -6,21 +6,22 @@ draw=true;
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        Operator1_bts_locations Operator2_bts_locations;  
 
-thetha_l=1; 
-alpa=4; 
+thetha_l=0.02; 
+alpa=2; 
 beta_l=1; %
 pl=23;  %
+
 
 Operator1_coefficient_parameters=[1/3,1/3,1/3];
 Operator2_coefficient_parameters=[1/3,1/3,1/3];
 
-Operator1_bts_locations=[50,50,50,100,75,75,100,100,100,50];
-Operator2_bts_locations=[150,150,150,200,175,175,200,200,200,150];
-
 
 % CONST for the simultor
 settings.number_of_avg_runs=1;
-settings.max_number_of_controllers=8;
+% controllers data
+settings.max_number_of_controllers=10;
+
+settings.number_of_bts=10;
 
 settings.upper_bound_xy_limit=250;
 settings.lower_bound_xy_limit=0;
@@ -35,13 +36,19 @@ settings.starting_pos=0.5;
 
 Carrom=false;
 
+
+Operator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
+Operator2_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
+
+
 % simulanneal settings
 
-al_settings.InitialTemperature=100000;
+al_settings.InitialTemperature=1000000;
 % re anneal every X itreations.
-al_settings.ReannealInterval=100;
+al_settings.ReannealInterval=10000;
 % the cooling parm
 al_settings.cooling=0.9999;
+
 % stop after X itretions in which the change wasn't higher then "TolFun" 
 al_settings.StallIterLimit=15;
 % early stop 
@@ -82,7 +89,7 @@ al_settings.TolFun=10^-5;
   
   
   % write out
-  Filename = strcat(algo_name,sprintf('_%s.', datestr(now,'mm-dd-yyyy-HH-MM')));
+  Filename = strcat(algo_name,sprintf('_%s.', datestr(now,'mm-dd-yyyy-HH-MM-SS')));
   csvwrite_with_headers(strcat(strcat('outputs\Results_',Filename),'csv'),results,csv_header);
   
   fid = fopen(strcat(strcat('outputs\Experiment_',Filename),'txt'),'w');
@@ -170,11 +177,11 @@ al_settings.TolFun=10^-5;
   y2=Operator2_bts_locations(2:2:end);
   
   
-  c_x_1=x(1:2:size(Operator1_bts_locations,2));
-  c_y_1=x(2:2:size(Operator1_bts_locations,2));
+  c_x_1=x(1:2:settings.max_number_of_controllers);
+  c_y_1=x(2:2:settings.max_number_of_controllers);
   
-  c_x_2=x(size(Operator1_bts_locations,2)+1:2:size(Operator1_bts_locations,2)+size(Operator2_bts_locations,2));
-  c_y_2=x(size(Operator1_bts_locations,2)+2:2:size(Operator1_bts_locations,2)+size(Operator2_bts_locations,2));
+  c_x_2=x(settings.max_number_of_controllers+1:2:2*settings.max_number_of_controllers);
+  c_y_2=x(settings.max_number_of_controllers+2:2:2*settings.max_number_of_controllers);
 
   if draw
     scatter(x1,y1,'o','r'); hold on;
