@@ -1,14 +1,14 @@
+function [csv_file,pram_file] = SimSelector(number_of_bts,number_controllers)
 % clear all memory
-clear all;
 
-draw=true;
+draw=false;
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        Operator1_bts_locations Operator2_bts_locations;  
 
-thetha_l=0.02; 
-alpa=2; 
-beta_l=1; %
+thetha_l=10; 
+alpa=4; 
+beta_l=7; %
 pl=23;  %
 
 
@@ -17,11 +17,11 @@ Operator2_coefficient_parameters=[1/3,1/3,1/3];
 
 
 % CONST for the simultor
-settings.number_of_avg_runs=1;
+settings.number_of_avg_runs=5;
 % controllers data
-settings.max_number_of_controllers=10;
+settings.max_number_of_controllers=2*number_controllers;
 
-settings.number_of_bts=10;
+settings.number_of_bts=number_of_bts;
 
 settings.upper_bound_xy_limit=250;
 settings.lower_bound_xy_limit=0;
@@ -34,7 +34,7 @@ settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-Carrom=false;
+settings.Carrom=true;
 
 
 Operator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
@@ -65,34 +65,43 @@ al_settings.TolFun=10^-5;
      csv_header= [csv_header,strcat('is_on', num2str(i))];
  end
    csv_header= [csv_header,'Time'];
-   csv_header= [csv_header,'Total val'];
+   csv_header= [csv_header,'Total_val'];
    csv_header= [csv_header,'AverageLatency1'];
    csv_header= [csv_header,'AverageLinkFailure1'];
    csv_header= [csv_header,'Transparency1'];
    csv_header= [csv_header,'AverageLatency2'];
    csv_header= [csv_header,'AverageLinkFailure2'];
    csv_header= [csv_header,'Transparency2'];
-  
+   csv_header= [csv_header,'OnControl1'];
+   csv_header= [csv_header,'OnControl2'];
+
   % run the expimrents
   results = [];
   for i=1:settings.number_of_avg_runs
-      if Carrom
+      if settings.Carrom
         [x,all_best,time]=CarromTableSim(settings);
           algo_name='CarromTable';
       else
         [x,all_best,time]=SimulannealbndSim(settings,al_settings);
         algo_name='Simulannealbnd';
       end
-        sample=[i,x,time,all_best];
+        format long g
+        y1=round(x(2*settings.max_number_of_controllers+1:1:2*settings.max_number_of_controllers+(settings.max_number_of_controllers/2)),4);
+        size1=size(y1,2)-size(y1(y1~=0.5),2);
+        y2=round(x(2*settings.max_number_of_controllers+(settings.max_number_of_controllers/2)+1:1:end),4);
+        size2=size(y2,2)-size(y2(y2~=0.5),2);
+        sample=[i,x,time,all_best,size1,size2];
         results = [results;sample];
   end
   
   
   % write out
   Filename = strcat(algo_name,sprintf('_%s.', datestr(now,'mm-dd-yyyy-HH-MM-SS')));
-  csvwrite_with_headers(strcat(strcat('outputs\Results_',Filename),'csv'),results,csv_header);
+  csv_file=strcat(strcat('outputs\Results_',Filename),'csv');
+  csvwrite_with_headers(csv_file,results,csv_header);
   
-  fid = fopen(strcat(strcat('outputs\Experiment_',Filename),'txt'),'w');
+  pram_file=strcat(strcat('outputs\Experiment_',Filename),'txt');
+  fid = fopen(pram_file,'w');
  
    fprintf(fid, '%s','Operator1_bts_locations ');
    fprintf(fid, '%d\n',Operator1_bts_locations);
@@ -146,7 +155,7 @@ al_settings.TolFun=10^-5;
    fprintf(fid, '%d\n',settings.starting_pos);
    
     fprintf(fid, '%s','Carrom ');
-    fprintf(fid, '%d\n',Carrom);
+    fprintf(fid, '%d\n',settings.Carrom);
     
    fprintf(fid, '%s','***********simulannealbnd parms*************');
 
@@ -170,8 +179,8 @@ al_settings.TolFun=10^-5;
 
 
   
-  x1=Operator1_bts_locations(1:2:end);
-  y1=Operator1_bts_locations(2:2:end);
+  x1= Operator1_bts_locations(1:2:end);
+  y1= Operator1_bts_locations(2:2:end);
   
   x2=Operator2_bts_locations(1:2:end);
   y2=Operator2_bts_locations(2:2:end);
@@ -189,3 +198,4 @@ al_settings.TolFun=10^-5;
     scatter(c_x_1,c_y_1,'x','r'); hold on;
      scatter(c_x_2,c_y_2,'x','g'); hold on;
   end
+end

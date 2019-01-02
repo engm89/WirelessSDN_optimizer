@@ -22,24 +22,21 @@ disp(Operator2_controller_usage);
 disp('********************************');
 
 % get array of 0 and 1 
-usage1=round(duplicate(Operator1_controller_usage));
-usage2=round(duplicate(Operator2_controller_usage));
-
-% send to zero the elements in not in use
-Operator1_controller_placement=Operator1_controller_placement.*usage1;
-Operator2_controller_placement=Operator2_controller_placement.*usage2;
+format long g
+usage1=round(duplicate(Operator1_controller_usage),4);
+usage2=round(duplicate(Operator2_controller_usage),4);
 
 % replace the 0 with -1 (out of the game)
-Operator1_controller_placement(Operator1_controller_placement==0)=-1;
-Operator2_controller_placement(Operator2_controller_placement==0)=-1;
+Operator1_controller_placement(usage1~=0.5)=-1;
+Operator2_controller_placement(usage2~=0.5)=-1;
 
 
 val1=double(AverageLatency(Operator1_controller_placement,Operator1_bts_locations));
-val2=double(AverageLinkFailure(Operator1_controller_placement,Operator1_bts_locations))
+val2=double(AverageLinkFailure(Operator1_controller_placement,Operator1_bts_locations));
 val3=double(Transparency(Operator1_controller_placement,Operator1_bts_locations));
 
 val4=double(AverageLatency(Operator2_controller_placement,Operator2_bts_locations));
-val5=double(AverageLinkFailure(Operator2_controller_placement,Operator2_bts_locations))
+val5=double(AverageLinkFailure(Operator2_controller_placement,Operator2_bts_locations));
 val6=double(Transparency(Operator2_controller_placement,Operator2_bts_locations));
 
 val=Operator1_coefficient_parameters(1)*(val1)...
@@ -76,7 +73,7 @@ end
 function val=Ten(v)
     global thetha_l alpa beta_l;
     syms u;
-   val=((1/beta_l)*(thetha_l^(2/alpa))*int(1/(1+(u^(alpa/2))),'u',thetha_l^(-2/alpa),inf))/(v*log(1+thetha_l));
+    val=((1/beta_l)*(thetha_l^(2/alpa))*int(1/(1+(u^(alpa/2))),'u',thetha_l^(-2/alpa),inf))/(v*log(1+thetha_l));
 end
 
 function val=posion_lambda(nodes_location)

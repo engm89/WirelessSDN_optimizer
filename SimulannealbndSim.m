@@ -42,7 +42,8 @@ try
     parpool;
     end
   temp_updater= @( optim,options ) options.InitialTemperature.*(al_settings.cooling.^optim.k);
-  
+  %'AnnealingFcn'
+  % new_points= @(state_struct, problemData) 
   options = saoptimset('MaxIter',settings.max_iterations,'InitialTemperature',...
       al_settings.InitialTemperature,'ReannealInterval', al_settings.ReannealInterval,...
       'StallIterLimit',al_settings.StallIterLimit,'TolFun',al_settings.TolFun,'TemperatureFcn',temp_updater);

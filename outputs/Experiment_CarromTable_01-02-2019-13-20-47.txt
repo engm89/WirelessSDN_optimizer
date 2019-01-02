@@ -1,0 +1,105 @@
+Operator1_bts_locations 25
+143
+82
+113
+145
+19
+15
+76
+131
+141
+61
+229
+207
+112
+246
+145
+59
+203
+113
+63
+239
+36
+129
+243
+163
+154
+118
+145
+228
+95
+58
+106
+69
+112
+157
+134
+97
+219
+76
+101
+Operator2_bts_locations 130
+16
+58
+30
+25
+223
+9
+210
+127
+29
+123
+150
+23
+245
+164
+116
+216
+66
+206
+83
+236
+62
+240
+128
+142
+249
+193
+79
+15
+12
+204
+104
+97
+131
+224
+102
+152
+24
+84
+37
+Operator1_coefficient_parameters 3.333333e-01
+3.333333e-01
+3.333333e-01
+Operator1_coefficient_parameters 3.333333e-01
+3.333333e-01
+3.333333e-01
+thetha_l 10
+alpa 4
+beta_l 7
+pl 23
+number_of_avg_runs 5
+max_number_of_controllers 24
+upper_bound_xy_limit 250
+lower_bound_xy_limit 0
+max_iterations 100
+pool_computing 0
+on_lb 5.000000e-01
+off_lb 4.999000e-01
+starting_pos 5.000000e-01
+Carrom 1
+***********simulannealbnd parms*************InitialTemperature: 1000000
+ReannealInterval: 10000
+StallIterLimit: 15
+TolFun: 1.000000e-05
+cooling: 9.999000e-01
