@@ -1,7 +1,7 @@
 function [csv_file,pram_file] = SimSelector(number_of_bts,number_controllers)
 % clear all memory
 
-draw=false;
+draw=true;
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        Operator1_bts_locations Operator2_bts_locations;  
@@ -17,7 +17,7 @@ Operator2_coefficient_parameters=[1/3,1/3,1/3];
 
 
 % CONST for the simultor
-settings.number_of_avg_runs=5;
+settings.number_of_avg_runs=1;
 % controllers data
 settings.max_number_of_controllers=2*number_controllers;
 
@@ -34,7 +34,7 @@ settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-settings.Carrom=true;
+settings.Carrom=false;
 
 
 Operator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
@@ -188,14 +188,23 @@ al_settings.TolFun=10^-5;
   
   c_x_1=x(1:2:settings.max_number_of_controllers);
   c_y_1=x(2:2:settings.max_number_of_controllers);
+  c_on_1=x(2*settings.max_number_of_controllers+1:1:2*settings.max_number_of_controllers+settings.max_number_of_controllers/2);
   
   c_x_2=x(settings.max_number_of_controllers+1:2:2*settings.max_number_of_controllers);
   c_y_2=x(settings.max_number_of_controllers+2:2:2*settings.max_number_of_controllers);
+  c_on_2=x(2*settings.max_number_of_controllers+settings.max_number_of_controllers/2+1:1:end);
+
+   format long g
+   usage1=round(c_on_1,4);
+   usage2=round(c_on_2,4);
+   
+   usage1(usage1~=0.5)=-1;
+   usage2(usage2~=0.5)=-1;
 
   if draw
     scatter(x1,y1,'o','r'); hold on;
     scatter(x2,y2,'o','g'); hold on;
-    scatter(c_x_1,c_y_1,'x','r'); hold on;
-     scatter(c_x_2,c_y_2,'x','g'); hold on;
+    scatter(c_x_1(usage1>0),c_y_1(usage1>0),'x','r'); hold on;
+    scatter(c_x_2(usage2>0),c_y_2(usage2>0),'x','g'); hold on;
   end
 end
