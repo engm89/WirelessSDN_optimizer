@@ -2,7 +2,7 @@
 clear all;
 
 % (num_of_bts,max_num_of_controllers)
-experiments=[[5,3];[10,5];[20,12];[30,17];[35,25];[40,27];[50,35];[60,45];[70,50];[80,60];[90,70];[100,80];[110,90];[120,100];[130,110];[140,120];[150,130]];
+experiments=[[5,3];[10,5];[15,8];[20,12];[30,17];[40,27];[70,50];[80,60];[90,70];[100,80];[120,100];[150,130]];
 parm={'Time','OnControl1','OnControl2','Total_val','AverageLatency1','AverageLinkFailure1','Transparency1','AverageLatency2','AverageLinkFailure2','Transparency2'};
 							
 

@@ -1,0 +1,4 @@
+bts_count,Time,OnControl1,OnControl2,Total_val,AverageLatency1,AverageLinkFailure1,Transparency1,AverageLatency2,AverageLinkFailure2,Transparency2
+5,80.353,0,0,1.9271,0.22096,0.70636,0,0.29344,0.70636,0
+10,42.206,2,0,1.9623,0.21959,0.70636,0.10201,0.22795,0.70636,0
+20,44.737,3,6,2.0891,0.24089,0.70636,0.030069,0.22452,0.70636,0.18088

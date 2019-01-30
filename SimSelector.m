@@ -1,6 +1,7 @@
 function [csv_file,pram_file] = SimSelector(number_of_bts,number_controllers)
 % clear all memory
 
+
 draw=true;
 % Global Const for WCPP formula
 global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
@@ -12,12 +13,12 @@ beta_l=7; %
 pl=23;  %
 
 
-Operator1_coefficient_parameters=[1/3,1/3,1/3];
-Operator2_coefficient_parameters=[1/3,1/3,1/3];
+Operator1_coefficient_parameters=[100,1,10];
+Operator2_coefficient_parameters=[100,1,10];
 
 
 % CONST for the simultor
-settings.number_of_avg_runs=1;
+settings.number_of_avg_runs=10;
 % controllers data
 settings.max_number_of_controllers=2*number_controllers;
 
@@ -34,7 +35,7 @@ settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-settings.Carrom=false;
+settings.Carrom=true;
 
 
 Operator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
