@@ -16,10 +16,10 @@ Operator2_controller_usage=x(1,(2*size+len+1):(3*size));
 %disp('operator 2 locations:');
 %disp(Operator2_controller_placement);
 %disp('operator 1 usege in controllers:');
-disp(Operator1_controller_usage);
-disp('operator 2 usege in controllers:');
-disp(Operator2_controller_usage);     
-disp('********************************');
+%disp(Operator1_controller_usage);
+%disp('operator 2 usege in controllers:');
+%disp(Operator2_controller_usage);     
+%disp('********************************');
 
 % get array of 0 and 1 
 format long g
@@ -37,7 +37,7 @@ val2=double(AverageLinkFailure(Operator1_controller_placement,Operator1_bts_loca
 val3=double(Transparency(Operator1_controller_placement,Operator1_bts_locations))*Operator1_coefficient_parameters(3);
 
 val4=double(AverageLatency(Operator2_controller_placement,Operator2_bts_locations))*Operator2_coefficient_parameters(1);
-disp('->')
+%disp('->')
 
 val5=double(AverageLinkFailure(Operator2_controller_placement,Operator2_bts_locations))*Operator2_coefficient_parameters(2);
 %disp('->')
@@ -59,12 +59,21 @@ end
 
 
 % Done
-function [val]=AverageLatency(controller_placement,bts_locations)
-   global thetha_l;
-   other_pl=AverageLinkFailure(controller_placement,bts_locations);
+function [val]=Wifi_AverageLatency(controller_placement,bts_locations)
    lambda_l=posion_lambda(append_locations(controller_placement,bts_locations));
+   number_of_bts=len(bts_locations)/2;
+   
+   %%maped TODO
+   val=1/maped;
+end
+
+
+% Done
+function [val]=LTE_AverageLatency(controller_placement,bts_locations)
+   global thetha_l beta_l;
+   lambda_l=	posion_lambda(append_locations(controller_placement,bts_locations));
    val=(1)/...
-       (other_pl*lambda_l*log(1+thetha_l));
+       (lambda_l*log(1+thetha_l)/((1/beta_l)+(thetha_l^(2/alpa))*int(1/(1+(u^(alpa/2))),'u',thetha_l^(-2/alpa),inf)));
 end
 
 %%
@@ -88,7 +97,7 @@ function val=append_locations(controller_placement,bts_locations)
         val=[controller_placement(controller_placement>0) bts_locations];
 end
 
-function val=Transparency(controller_placement,bts_locations)
+function val=LTE_Transparency(controller_placement,bts_locations)
     total_locations=append_locations(controller_placement,bts_locations);
     v2=posion_lambda(total_locations);
     v1=posion_lambda(bts_locations);
@@ -104,15 +113,45 @@ end
 %%
 
 
-function val=AverageLinkFailure(controller_placement,bts_locations)
-    global thetha_l alpa beta_l pl;
-    syms tu r;
+function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_controller_placement,w_bts_locations)
+    global thetha_l alpa beta_l beta_w pl pw gamma_w_ed;
+   
     lambda_l=posion_lambda(append_locations(controller_placement,bts_locations));
+    lambda_w=posion_lambda(append_locations(w_controller_placement,w_bts_location));
     lambda_l_tilda=lambda_l*beta_l;
-    s=(thetha_l*(tu^alpa))/pl;
-    val=beta_l*int(...
-        exp(-2*lambda_l_tilda*int(r*(s*pl*(r^(-alpa)))/(1+s*pl*(r^(-alpa))),'r',tu,inf))...
+    % TODO: NW
+    
+    
+    syms tu r;
+    s=(thetha_w*tu^alpa)/pw;
+    val=int(...
+        exp(-2*lambda_l_tilda*int(r*((s*pl*r^(-alpa))/(1+s*pl*r^(-alpa))),'r',tu,inf))*...
+        exp(-lambda_w*((1-exp(-lambda_w*NW))/(lambda_w*NW))*...
+        int(int( (2*r*(1-exp(-(gamma_w_ed*(r^2+tu^2-2*r*tu*cos(fi))^(alpa/2))/pl)))/(1+(r^alpa/s*pw)),'r',0,tu),'fi',0,pi)*...
+        beta_w*pi*(s*tu)^(2/alpa)*int(1/(1+u^(-alpa/2)),'u',(pw^2)*(s*tu^(-2/alpa)),inf)) ...
         *2*pi*lambda_l*tu*exp(-pi*lambda_l*(tu^2))...
+        *beta_l ...
+        , 'tu', 0, inf);
+    val=val;
+    disp(val)
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+
+function val=Wifi_AverageLinkFailure(controller_placement,bts_locations)
+    global thetha_l alpa beta_l pl beta_w pw gamma_w_cs thetha_w;
+    syms tu r;
+    lambda_w=posion_lambda(append_locations(controller_placement,bts_locations));
+    lambda_l_tilda=lambda_l*beta_l;
+    
+    s=((thetha_l*(tu^alpa))/pl);  
+    
+    val=int(...
+        exp(beta_w*lambda_w*int(int((2*r*(1-exp(-(gamma_w_cs*(r^2+th^2 -2*r*tu*cos(fi))^(alpa/2))/pw)  ))/(1+r^q/(((thetha_w*tu^alpa)/pw)*pw)),'r',tu,inf),'fi',0,pi))*...
+        exp(lambda_l_tilda*...
+        (int(int(),'r',0,pi)-...
+         int(int(),'r',0,acos((r^2+tu^2-)))...
+        *2*pi*lambda_w*tu*exp(-pi*lambda_w*(tu^2))...
         , 'tu', 0, inf);
     val=val;
     disp(val)
