@@ -4,14 +4,18 @@ function [csv_file,pram_file] = SimSelector(number_of_bts,number_controllers)
 
 draw=true;
 % Global Const for WCPP formula
-global thetha_l alpa beta_l pl Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
-       Operator1_bts_locations Operator2_bts_locations;  
+global thetha_l pw beta_w gamma_w_cs thetha_w alpa beta_l pl gamma_w_ed Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
+       wOperator1_bts_locations lOperator2_bts_locations;  
 
 thetha_l=10; 
 alpa=4; 
 beta_l=7; %
 pl=23;  %
-
+pw=12;
+gamma_w_ed=2;
+thetha_w=2;
+gamma_w_cs=2;
+beta_w=2;
 
 Operator1_coefficient_parameters=[100,1,10];
 Operator2_coefficient_parameters=[100,1,10];
@@ -35,11 +39,11 @@ settings.on_lb=0.5;
 settings.off_lb=0.4999;
 settings.starting_pos=0.5;
 
-settings.Carrom=true;
+settings.Carrom=false;
 
 
-Operator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
-Operator2_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
+wOperator1_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
+lOperator2_bts_locations=randi(settings.upper_bound_xy_limit,1,2*settings.number_of_bts);
 
 
 % simulanneal settings
@@ -105,10 +109,10 @@ al_settings.TolFun=10^-5;
   fid = fopen(pram_file,'w');
  
    fprintf(fid, '%s','Operator1_bts_locations ');
-   fprintf(fid, '%d\n',Operator1_bts_locations);
+   fprintf(fid, '%d\n',wOperator1_bts_locations);
    
    fprintf(fid, '%s','Operator2_bts_locations ');
-   fprintf(fid, '%d\n',Operator2_bts_locations);
+   fprintf(fid, '%d\n',lOperator2_bts_locations);
       
    fprintf(fid, '%s','Operator1_coefficient_parameters ');
    fprintf(fid, '%d\n',Operator1_coefficient_parameters);
@@ -180,11 +184,11 @@ al_settings.TolFun=10^-5;
 
 
   
-  x1= Operator1_bts_locations(1:2:end);
-  y1= Operator1_bts_locations(2:2:end);
+  x1= wOperator1_bts_locations(1:2:end);
+  y1= wOperator1_bts_locations(2:2:end);
   
-  x2=Operator2_bts_locations(1:2:end);
-  y2=Operator2_bts_locations(2:2:end);
+  x2=lOperator2_bts_locations(1:2:end);
+  y2=lOperator2_bts_locations(2:2:end);
   
   
   c_x_1=x(1:2:settings.max_number_of_controllers);

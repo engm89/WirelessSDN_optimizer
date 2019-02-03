@@ -14,7 +14,7 @@ Operator2_controller_usage=ones(1,settings.max_number_of_controllers/2)*settings
 
 
 % run
-ObjectiveFunction = @WCPP;
+ObjectiveFunction = @WIfi_LTE;%@WCPP;
 
 % the first guess
 x=[Operator1_controller_placement,...
@@ -56,6 +56,7 @@ try
   %get time
   time=toc;
 catch ME
+    disp(ME.message);
     disp('Crashed!')
 end
 
