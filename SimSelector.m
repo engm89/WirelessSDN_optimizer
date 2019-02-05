@@ -12,10 +12,10 @@ alpa=4;
 beta_l=7; %
 pl=23;  %
 pw=12;
-gamma_w_ed=2;
-thetha_w=2;
-gamma_w_cs=2;
-beta_w=2;
+gamma_w_ed=1/10;
+thetha_w=1/10;
+gamma_w_cs=1/10;
+beta_w=1/10;
 
 Operator1_coefficient_parameters=[100,1,10];
 Operator2_coefficient_parameters=[100,1,10];

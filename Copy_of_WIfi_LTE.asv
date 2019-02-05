@@ -133,20 +133,20 @@ end
 function val=G(a1,a2,b1,b2,s,p,c1,c2,c3)
     global alpa;
      syms fi r;
-     A1=A(c1,c2,c3,r,fi);
+     A1=1-exp(-(c3/c1)*(r^2+c2^2-r*c2*cos(fi)));
      firstint=int(2*r*A1/(alpa+r^alpa/s*p),'r',b1,b2);
      val=int(firstint,'fi',a1,a2);
      disp(val)
 
 end
 
-function val=A(c1,c2,c3,r,fi)
-    global alpa; 
-    val =1-exp(-(c3/c1)*(r^2+c2^2-r*c2*cos(fi))^(alpa/2));
-end
+%function val=A(c1,c2,c3,r,fii)
+%    global alpa; % ^(alpa/2)
+%    val=1-exp(-(c3/c1)*(r^2+c2^2-r*c2*cos(fii)));
+%end
 
 function val=Nw_top()
-  global alpa;
+ global alpa;
  syms x;
  val=pi*int(x^(2/alpa)*exp(-x),'x',0,inf)*int(x^(-2/alpa)*exp(-x),'x',0,inf);
 end
@@ -155,14 +155,18 @@ function val=Lill(s,tu,lambda_l)
     global beta_l pl alpa;
     syms r;
     lambda_l_tilda=lambda_l*beta_l;
-    val=
-    disp(val);
+     val=exp(-2*lambda_l_tilda*int(r*s*pl*r^(-alpa)/(1+s*pl*r^(-alpa)),'r',tu,inf));
+     disp(val);
 end
 
 function val=Liww(s,tu,lambda_w)
     global beta_w pw gamma_w_cs;
     disp('tick1_s')
-    val=exp(-beta_w*lambda_w*G(0,pi,tu,inf,s,pw,pw,tu,gamma_w_cs));
+    syms fi r;
+    A1=1-exp(-(gamma_w_cs/pw)*(r^2+pw^2-r*tu*cos(fi)));
+    firstint=int(2*r*A1/(alpa+r^alpa/s*pw),'r',tu,inf);
+    val1=int(firstint,'fi',0,pi);
+    val=exp(-beta_w*lambda_w*val1);%G(0,pi,tu,inf,s,pw,pw,tu,gamma_w_cs));
     disp('tick1_e')
 
 end
@@ -234,20 +238,68 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperator2_controller_placement,lOperator2_bts_locations)
-    global thetha_l alpa beta_l pl;
-    syms tu;
+    global thetha_l alpa beta_l pl beta_w pw gamma_w_cs gamma_w_ed;
+    syms tu fiii r x;
     
     lambda_w=posion_lambda(append_locations(controller_placement,bts_locations));
     lambda_l=posion_lambda(append_locations(lOperator2_controller_placement,lOperator2_bts_locations));
     lambda_l_tilda=lambda_l*beta_l;
     
-    s=((thetha_l*(tu^alpa))/pl);  
     
-   ex1=Liww(s,tu,lambda_w);
-   ex2=Lilw(s,tu,lambda_l);
-   ex3=secend_exp(lambda_w,lambda_l_tilda,tu);
+    s_fun=@(tu)((thetha_l*(tu^alpa))/pl);  
+    A=@(c1,c2,c3,tu,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
+    G=@(a1,a2,a3,a4,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(alpa+r.^alpa./s.*pw),0,pi,@(tu)tu,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    
+    
+    
+    % Liww
+    G_liww=@(r,fiii,tu) G(0,pi,tu,inf,s_fun(tu),pw,pw,tu,gamma_w_cs,r,fiii,tu);
+    G_SOL = @(tu)arrayfun(G_liww,r,fiii,tu);
+
+    
+    LIWW=@(tu) exp(-beta_w.*lambda_w.*G_SOL(tu));
+    LIWW_SOL = @(tu) arrayfun(LIWW,tu);
+
+   % exp1=integral(LIWW_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    
+    
+  %  Lilw
+   delta_l_int= @(x) arrayfun(@(x) x.^(((alpa+1)./alpa)-1).*exp(-x),x);
+   delta_l=integral(delta_l_int,0,inf);
+   delta_l=((pl/gamma_w_ed)^(1/alpa))*delta_l;
+   
+    % fix indicator
+   G_Lilw1=@(r,fiii,tu) G(0,pi,abs(tu-delta_l),inf,s_fun(tu),pl,pl,tu,gamma_w_ed,r,fiii,tu);
+   G_Lilw1_SOL = @(tu)arrayfun(G_Lilw1,r,fiii,tu);
+   
+   l1=@(r,tu)acos((r.^2+tu.^2+delta_l.^2)./(2*tu.^r));
+   G_Lilw2=@(r,fiii,tu) G(tu-delta_l,tu+delta_l,0,l1,s_fun(tu),pl,pl,tu,gamma_w_ed,r,fiii,tu);
+   G_Lilw2_SOL = @(tu) arrayfun(G_Lilw2,r,fiii,tu);
+   
+   Lilw=@(tu) exp(beta_l.*lambda_l.*(G_Lilw1_SOL(tu)-G_Lilw2_SOL(tu)));
+   Lilw_SOL = @(tu)arrayfun(Lilw,tu);
+
+   %exp2=integral(Lilw_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+ 
+   
+   %secend_exp
+
+   Nw_top=pi*integral( @(x) x.^(2./alpa).*exp(-x),0,inf).*integral( @(x) x.^(-2./alpa).*exp(-x),0,inf);
+   
+   
+   Nw_tilda_top_int= @(r) r.*acos(r./2.*tu).*exp(-(gamma_w_ed./pw).*r.^alpa);
+   Nw_tilda_top=@(tu) 2.*integral(Nw_tilda_top_int ,0,2);% @(tu) 2.*tu);
+   Nw_tilda_top_SOL = @(tu)arrayfun(Nw_tilda_top,tu);
+   
+   t_fun=integral( @(t)exp(-t.^2),((pi.^2*lambda_l_tilda./4).*(sqrt(pl./gamma_w_ed))),inf);
+  
+   exp_expression=@(tu) (1-exp(-lambda_w.*(Nw_top-Nw_tilda_top(tu))))./(lambda_w.*(Nw_top-Nw_tilda_top(tu))).*(2./sqrt(pi)).*t_fun;
+  
+   exp3_SOL = @(tu)arrayfun(exp_expression,tu);
+   exp3=integral(exp3_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+
     val=int(...
-        ex3...%% second exp:
+        val...
         *2*pi*lambda_w*tu*exp(-pi*lambda_w*(tu^2))...
         ,'tu', 0,inf);
     

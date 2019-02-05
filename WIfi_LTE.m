@@ -132,15 +132,16 @@ end
 %%
 function val=G(a1,a2,b1,b2,s,p,c1,c2,c3)
     global alpa;
-     syms r fii;
-     firstint=int(2*r*A(c1,c2,c3,r,fii)/(alpa+r^alpa/s*p)  ,r,b1,b2);
-     val=int(firstint,fii,a1,a2);
+     syms fi r;
+     A1=A(c1,c2,c3,r,fi);
+     firstint=int(2*r*A1/(alpa+r^alpa/s*p),'r',b1,b2);
+     val=int(firstint,'fi',a1,a2);
      disp(val)
 
 end
 
 function val=A(c1,c2,c3,r,fi)
-    global alpa;
+    global alpa; 
     val =1-exp(-(c3/c1)*(r^2+c2^2-r*c2*cos(fi))^(alpa/2));
 end
 
@@ -154,13 +155,12 @@ function val=Lill(s,tu,lambda_l)
     global beta_l pl alpa;
     syms r;
     lambda_l_tilda=lambda_l*beta_l;
-     val=exp(-2*lambda_l_tilda*int(r*s*pl*r^(-alpa)/(1+s*pl*r^(-alpa)),'r',tu,inf));
-     disp(val);
+    val=exp(-2*lambda_l_tilda*int(r*s*pl*r^(-alpa)/(1+s*pl*r^(-alpa)),'r',tu,inf));
+    disp(val);
 end
 
 function val=Liww(s,tu,lambda_w)
     global beta_w pw gamma_w_cs;
-    syms r;
     disp('tick1_s')
     val=exp(-beta_w*lambda_w*G(0,pi,tu,inf,s,pw,pw,tu,gamma_w_cs));
     disp('tick1_e')
@@ -172,23 +172,20 @@ function val=Liwl(s,tu,lambda_w)
     syms r;
     bw_tag=(1-exp(-lambda_w*Nw_top()))/lambda_w*Nw_top();
     val=exp(-lambda_w*(bw_tag*G(0,pi,0,tu,s,pw,pl,tu,gamma_w_ed)+beta_w*Z(s,tu,pw)));
-    f=G(0,pi,0,tu,s,pw,pl,2,gamma_w_ed);
-    disp(f)
 end
 
 function val=indeicator(tu,delta_l) 
-    if abs(tu)<delta_l
+    %if abs(tu)<delta_l
         val=tu-delta_l;
-    else
-        val=0;
-    end
+    %else
+     %   val=0;
+    %end
 end
 
 function val=Lilw(s,tu,lambda_l)
     global beta_l pl gamma_w_ed alpa;
-    syms x;
+    syms x r;
     disp('tick2_s')
-    r=1; % change
     delta_l=((pl/gamma_w_ed)^(1/alpa))*int(x^(((alpa+1)/alpa)-1)*exp(-x) ,'x',0,inf);
     val=exp(beta_l*lambda_l*(G(0,pi,indeicator(tu,delta_l),inf,s,pl,pl,tu,gamma_w_ed)-G(0,acos((r^2+tu^2+delta_l^2)/(2*tu^r)),tu-delta_l,tu+delta_l,s,pl,pl,tu,gamma_w_ed)));
     disp('tick2_s')
@@ -211,6 +208,8 @@ function  val=secend_exp(lambda_w,lambda_l_tilda,tu)
     syms t;
     from=((pi^2*lambda_l_tilda/4)*(sqrt(pl/gamma_w_ed)));
     val=(1-exp(-lambda_w*(Nw_top()-Nw_tilda_top(tu))))/(lambda_w*(Nw_top()-Nw_tilda_top(tu)))*(2/sqrt(pi))*int(exp(-t^2),'t',from,inf);
+    disp('->')
+    disp(val)
 end
 
 function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_controller_placement,w_bts_locations)
@@ -222,12 +221,14 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     
   
     s=(thetha_l*tu^alpa)/pl;
+    ex1=Lill(s,tu,lambda_l);
+    ex2=Liwl(s,tu,lambda_w); % this is the issuse
     val=int(...
-        Lill(s,tu,lambda_l)*Liwl(s,tu,lambda_w)...
+        ex1*ex2...
         *beta_l ...
         *2*pi*lambda_l*tu*exp(-pi*lambda_l*(tu^2))...
         , 'tu', 0, inf);
-    %disp(val)
+    disp(val)
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -242,13 +243,14 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
     
     s=((thetha_l*(tu^alpa))/pl);  
     
-   
+   ex1=Liww(s,tu,lambda_w);
+   ex2=Lilw(s,tu,lambda_l);
+   ex3=secend_exp(lambda_w,lambda_l_tilda,tu);
     val=int(...
-        Liww(s,tu,lambda_w)*Lilw(s,tu,lambda_l)... %% first exp:
-        *secend_exp(lambda_w,lambda_l_tilda,tu)...%% second exp:
+        ex3...%% second exp:
         *2*pi*lambda_w*tu*exp(-pi*lambda_w*(tu^2))...
         ,'tu', 0,inf);
     
         %
-
+    disp(val)
 end
