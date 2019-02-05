@@ -174,7 +174,7 @@ end
 
 
 function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_controller_placement,w_bts_locations)
-    global thetha_l alpa beta_l pl pw gamma_w_ed;
+    global thetha_l alpa beta_l pl pw gamma_w_ed beta_w;
     syms tu ;
 
     lambda_l=posion_lambda(append_locations(controller_placement,bts_locations));
@@ -182,7 +182,7 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     
     s_fun=@(tu)((thetha_l*(tu^alpa))/pl);  
     A=@(c1,c2,c3,tu,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
-    G=@(a1,a2,a3,a4,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(alpa+r.^alpa./s.*pw),0,pi,@(tu)tu,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    G=@(a1,a2,a3,a4,s,p,c1,c2,c3,tu) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(alpa+r.^alpa./s.*pw),0,pi,@(tu)tu,inf,'RelTol',1e-8,'AbsTol',1e-13);
     
     %Lill
     lambda_l_tilda=lambda_l*beta_l;
@@ -190,24 +190,24 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
    
     Lill_SOL = @(tu)arrayfun(@(tu)Lill(s_fun(tu),tu),tu);
 
-    integral(Lill_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+   % ex1=integral(Lill_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
 
-    %ex2=Liwl(s,tu,lambda_w); % this is the issuse
+    %Liwl
     Nw_top=pi*integral( @(x) x.^(2./alpa).*exp(-x),0,inf).*integral( @(x) x.^(-2./alpa).*exp(-x),0,inf);
     Z=@(s,a,b) pi.*(s.*a).^(alpa./2).*integral(@(u) (1./(1+u.^(-alpa./2))),(s.*a).*b.^2,inf);
 
     bw_tag=(1-exp(-lambda_w.*Nw_top))./lambda_w.*Nw_top;
-    Liwl=@(s,tu,r,fiii) exp(-lambda_w.*(bw_tag.*G(0,pi,0,tu,s,pw,pl,tu,gamma_w_ed,r,fiii,tu)+beta_w.*Z(s,tu,pw)));
+    Liwl=@(s,tu) exp(-lambda_w.*(bw_tag.*G(0,pi,0,tu,s,pw,pl,tu,gamma_w_ed,tu)+beta_w.*Z(s,tu,pw)));
+    Liwl_SOL = @(tu)arrayfun(@(tu)Liwl(s_fun(tu),tu),tu);
+
+    %ex2=integral(Liwl_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+
     
-    Liwl_SOL = @(tu)arrayfun(@(tu)Liwl(s_fun(tu),tu,tu,fii),tu);
-
-    integral(Liwl_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
-
-    val=int(...
-        ex1*ex2...
-        *beta_l ...
-        *2*pi*lambda_l*tu*exp(-pi*lambda_l*(tu^2))...
-        , 'tu', 0, inf);
+    SOL = @(tu) arrayfun(@(tu) Lill_SOL(tu).*Liwl_SOL(tu)...
+        .*beta_l.*2.*pi.*lambda_l.*tu.*exp(-pi.*lambda_l.*(tu.^2)),tu);
+   
+    val=integral(SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+  
     disp(val)
 end
 
