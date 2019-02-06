@@ -14,7 +14,7 @@ Operator2_controller_usage=ones(1,settings.max_number_of_controllers/2)*settings
 
 
 % run
-ObjectiveFunction = @WIfi_LTE;%@WCPP;
+ObjectiveFunction = @Copy_of_WIfi_LTE;%@WCPP;
 
 % the first guess
 x=[Operator1_controller_placement,...

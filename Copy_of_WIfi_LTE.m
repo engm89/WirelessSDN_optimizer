@@ -1,4 +1,4 @@
-function [val,val1,val2,val3,val4,val5,val6] = WIfi_LTE(x)
+function [val,val1,val2,val3,val4,val5,val6] = Copy_of_WIfi_LTE(x)
 
 global Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        wOperator1_bts_locations lOperator2_bts_locations M1 M2 M3;
@@ -36,16 +36,16 @@ wOperator1_controller_placement(usage1~=0.5)=-1;
 lOperator2_controller_placement(usage2~=0.5)=-1;
 
 
-% val1=double(Wifi_AverageLatency(lOperator2_controller_placement,lOperator2_bts_locations,wOperator1_controller_placement,wOperator1_bts_locations))*Operator1_coefficient_parameters(1);
-% disp(val1)
-% 
-% val2=double(Wifi_AverageLinkFailure(wOperator1_controller_placement,wOperator1_bts_locations,lOperator2_controller_placement,lOperator2_bts_locations))*Operator1_coefficient_parameters(2);
-% %val3=double(Transparency(Operator1_controller_placement,Operator1_bts_locations))*Operator1_coefficient_parameters(3);
-% disp(val2)
-% 
-% val4=double(LTE_AverageLatency(lOperator2_controller_placement,lOperator2_bts_locations))*Operator2_coefficient_parameters(1);
-% disp(val4)
-% 
+val1=double(Wifi_AverageLatency(lOperator2_controller_placement,lOperator2_bts_locations,wOperator1_controller_placement,wOperator1_bts_locations))*Operator1_coefficient_parameters(1);
+disp(val1)
+
+val2=double(Wifi_AverageLinkFailure(wOperator1_controller_placement,wOperator1_bts_locations,lOperator2_controller_placement,lOperator2_bts_locations))*Operator1_coefficient_parameters(2);
+%val3=double(Transparency(Operator1_controller_placement,Operator1_bts_locations))*Operator1_coefficient_parameters(3);
+disp(val2)
+
+val4=double(LTE_AverageLatency(lOperator2_controller_placement,lOperator2_bts_locations))*Operator2_coefficient_parameters(1);
+disp(val4)
+
 
 val5=double(LTE_AverageLinkFailure(lOperator2_controller_placement,lOperator2_bts_locations,wOperator1_controller_placement,wOperator1_bts_locations))*Operator2_coefficient_parameters(2);
 %disp('->')
@@ -130,47 +130,6 @@ end
 %%
 %% functions for AverageLinkFailure
 %%
-function val=G(a1,a2,b1,b2,s,p,c1,c2,c3)
-    global alpa;
-     syms fi r;
-     A1=1-exp(-(c3/c1)*(r^2+c2^2-r*c2*cos(fi)));
-     firstint=int(2*r*A1/(alpa+r^alpa/s*p),'r',b1,b2);
-     val=int(firstint,'fi',a1,a2);
-     disp(val)
-
-end
-
-
-function val=Nw_top()
- global alpa;
- syms x;
- val=pi*int(x^(2/alpa)*exp(-x),'x',0,inf)*int(x^(-2/alpa)*exp(-x),'x',0,inf);
-end
-
-function val=Lill(s,tu,lambda_l)
-    global beta_l pl alpa;
-    syms r;
-    lambda_l_tilda=lambda_l*beta_l;
-     val=exp(-2*lambda_l_tilda*int(r*s*pl*r^(-alpa)/(1+s*pl*r^(-alpa)),'r',tu,inf));
-     disp(val);
-end
-
-
-
-function val=Liwl(s,tu,lambda_w)
-    global pw pl gamma_w_ed beta_w;
-    syms r;
-    bw_tag=(1-exp(-lambda_w*Nw_top()))/lambda_w*Nw_top();
-    val=exp(-lambda_w*(bw_tag*G(0,pi,0,tu,s,pw,pl,tu,gamma_w_ed)+beta_w*Z(s,tu,pw)));
-end
-
-
-function val=Z(s,a,b)
-    global alpa;
-    syms u;
-    val=pi*(s*a)^(alpa/2)*int((1/(1+u^(-alpa/2))),'u',(s*a)*b^2,inf);
-end
-
 
 
 function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_controller_placement,w_bts_locations)
@@ -182,11 +141,11 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     
     s_fun=@(tu)((thetha_l*(tu^alpa))/pl);  
     A=@(c1,c2,c3,tu,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
-    G=@(a1,a2,a3,a4,s,p,c1,c2,c3,tu) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(alpa+r.^alpa./s.*pw),0,pi,@(tu)tu,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    G=@(a1,a2,b1,b2,s,p,c1,c2,c3,tu) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(1+r.^alpa./s.*p),a1,a2,b1,b2,'RelTol',1e-8,'AbsTol',1e-13);
     
     %Lill
     lambda_l_tilda=lambda_l*beta_l;
-    Lill=@(s,tu)exp(-2.*lambda_l_tilda.*integral( @(r) r.*s.*pl.*r.^(-alpa)./(1+s.*pl.*r.^(-alpa)),tu,inf));
+    Lill=@(s,tu)exp(-2.*lambda_l_tilda.*integral( @(r) r.*s.*pl.*r.^(-alpa)./(1+s.*pl.*r.^(-alpa)),abs(tu),inf));
    
     Lill_SOL = @(tu)arrayfun(@(tu)Lill(s_fun(tu),tu),tu);
 
@@ -197,7 +156,7 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     Z=@(s,a,b) pi.*(s.*a).^(alpa./2).*integral(@(u) (1./(1+u.^(-alpa./2))),(s.*a).*b.^2,inf);
 
     bw_tag=(1-exp(-lambda_w.*Nw_top))./lambda_w.*Nw_top;
-    Liwl=@(s,tu) exp(-lambda_w.*(bw_tag.*G(0,pi,0,tu,s,pw,pl,tu,gamma_w_ed,tu)+beta_w.*Z(s,tu,pw)));
+    Liwl=@(s,tu) exp(-lambda_w.*(bw_tag.*G(0,pi,0,abs(tu),s,pw,pl,abs(tu),gamma_w_ed,tu)+beta_w.*Z(s,abs(tu),pw)));
     Liwl_SOL = @(tu)arrayfun(@(tu)Liwl(s_fun(tu),tu),tu);
 
     %ex2=integral(Liwl_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
@@ -213,23 +172,28 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 
+function val=indeicator(tu,delta_l) 
+    v=[tu,0];
+    val=v(find(v<delta_l,1,'first'))*(abs(tu)-delta_l);
+end
+
 function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperator2_controller_placement,lOperator2_bts_locations)
     global thetha_l alpa beta_l pl beta_w pw gamma_w_cs gamma_w_ed;
-    syms tu fiii r x;
+    syms tu r fiii;
     
     lambda_w=posion_lambda(append_locations(controller_placement,bts_locations));
     lambda_l=posion_lambda(append_locations(lOperator2_controller_placement,lOperator2_bts_locations));
     lambda_l_tilda=lambda_l*beta_l;
     
     
-    s_fun=@(tu)((thetha_l*(tu^alpa))/pl);  
+    s_fun=@(tu)((thetha_l*(abs(tu)^alpa))/pl);  
     A=@(c1,c2,c3,tu,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
-    G=@(a1,a2,a3,a4,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(alpa+r.^alpa./s.*pw),0,pi,@(tu)tu,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    G=@(a1,a2,b1,b2,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(1+r.^alpa./s.*p),a1,a2,b1,b2);
+    %
+    % check the order of integration TODO
     
-    
-    
-    % Liww
-    G_liww=@(r,fiii,tu) G(0,pi,tu,inf,s_fun(tu),pw,pw,tu,gamma_w_cs,r,fiii,tu);
+    % Liww                             
+    G_liww=@(r,fiii,tu) G(0,pi,abs(tu),inf,s_fun(tu),pw,pw,abs(tu),gamma_w_cs,tu,r,fiii);
     G_SOL = @(tu)arrayfun(G_liww,r,fiii,tu);
 
     
@@ -244,12 +208,13 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
    delta_l=integral(delta_l_int,0,inf);
    delta_l=((pl/gamma_w_ed)^(1/alpa))*delta_l;
    
-    % fix indicator
-   G_Lilw1=@(r,fiii,tu) G(0,pi,abs(tu-delta_l),inf,s_fun(tu),pl,pl,tu,gamma_w_ed,r,fiii,tu);
+   G_Lilw1=@(r,fiii,tu) G(0,pi,indeicator(tu,delta_l),inf,s_fun(tu),pl,pl,abs(tu),gamma_w_ed,tu,r,fiii);
    G_Lilw1_SOL = @(tu)arrayfun(G_Lilw1,r,fiii,tu);
    
-   l1=@(r,tu)acos((r.^2+tu.^2+delta_l.^2)./(2*tu.^r));
-   G_Lilw2=@(r,fiii,tu) G(tu-delta_l,tu+delta_l,0,l1,s_fun(tu),pl,pl,tu,gamma_w_ed,r,fiii,tu);
+
+    G1=@(b1,b2,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(1+r.^alpa./s.*p),b1,b2,0,@(r)acos((r.^2+abs(tu).^2+delta_l.^2)./(2*tu.^r)),'RelTol',1e-8,'AbsTol',1e-13);
+
+   G_Lilw2=@(r,fiii,tu) G1(tu-delta_l,tu+delta_l,s_fun(tu),pl,pl,tu,gamma_w_ed,tu,r,fiii);
    G_Lilw2_SOL = @(tu) arrayfun(G_Lilw2,r,fiii,tu);
    
    Lilw=@(tu) exp(beta_l.*lambda_l.*(G_Lilw1_SOL(tu)-G_Lilw2_SOL(tu)));
@@ -263,13 +228,13 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
    Nw_top=pi*integral( @(x) x.^(2./alpa).*exp(-x),0,inf).*integral( @(x) x.^(-2./alpa).*exp(-x),0,inf);
    
    
-   Nw_tilda_top_int= @(r,tu) r.*acos(r./2.*tu).*exp(-(gamma_w_ed./pw).*r.^alpa);
+   Nw_tilda_top_int= @(r,tu) r.*acos(r./2.*tu).*exp(-(gamma_w_cs./pw).*r.^alpa).*r;
    
-   Nw_tilda_top=@(tu) 2.*integral(@(r)Nw_tilda_top_int(r,tu) ,0,2);% @(tu) 2.*tu);
+   Nw_tilda_top=@(tu) 2.*integral(@(r)Nw_tilda_top_int(r,abs(tu)) ,0,  2.*abs(tu));
    
    t_fun=integral( @(t)exp(-t.^2),((pi.^2*lambda_l_tilda./4).*(sqrt(pl./gamma_w_ed))),inf);
   
-   exp_expression=@(tu) (1-exp(-lambda_w.*(Nw_top-Nw_tilda_top(tu))))./(lambda_w.*(Nw_top-Nw_tilda_top(tu))).*(2./sqrt(pi)).*t_fun;
+   exp_expression=@(tu) ((1-exp(-lambda_w.*(Nw_top-Nw_tilda_top(tu))))./(lambda_w.*(Nw_top-Nw_tilda_top(tu)))).*(2./sqrt(pi)).*t_fun;
   
    exp3_SOL = @(tu)arrayfun(exp_expression,tu);
    %exp3=integral(exp3_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);

@@ -175,11 +175,8 @@ function val=Liwl(s,tu,lambda_w)
 end
 
 function val=indeicator(tu,delta_l) 
-    %if abs(tu)<delta_l
-        val=tu-delta_l;
-    %else
-     %   val=0;
-    %end
+    v=[tu,0];
+    val=v(find(v<delta_l,1,'first'))*(abs(tu)-delta_l);
 end
 
 function val=Lilw(s,tu,lambda_l)
