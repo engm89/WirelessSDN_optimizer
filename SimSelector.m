@@ -7,18 +7,18 @@ draw=true;
 global thetha_l pw beta_w gamma_w_cs thetha_w alpa beta_l pl gamma_w_ed Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        wOperator1_bts_locations lOperator2_bts_locations;  
 
-thetha_l=1; 
-alpa=6;  %[-2,8]
-beta_l=1/10; %
-pl=1;  %
+thetha_l=10; 
+alpa=4;  %[-2,8]
+beta_l=7; %
+pl=23;  %
 pw=5;
-gamma_w_ed=-62;
+gamma_w_ed=62;
 thetha_w=1;
-gamma_w_cs=-82;
-beta_w=1/1000;
+gamma_w_cs=82;
+beta_w=18;
 
-Operator1_coefficient_parameters=[100,1,10];
-Operator2_coefficient_parameters=[100,1,10];
+Operator1_coefficient_parameters=[1,1/10,1];
+Operator2_coefficient_parameters=[1,1/10,1/10];
 
 
 % CONST for the simultor

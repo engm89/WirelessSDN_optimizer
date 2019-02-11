@@ -14,7 +14,7 @@ Operator2_controller_usage=ones(1,settings.max_number_of_controllers/2)*settings
 
 
 % run
-ObjectiveFunction = @Copy_of_WIfi_LTE;%@WCPP;
+ObjectiveFunction =@Map_WIfi_LTE;% @Copy_of_WIfi_LTE;%@WCPP;
 
 % the first guess
 x=[Operator1_controller_placement,...
@@ -36,7 +36,7 @@ lb = [ones(1,length(Operator1_controller_placement))*settings.lower_bound_xy_lim
       ones(1,length(Operator2_controller_usage)).*settings.off_lb ];
 
 
-try
+%try
     % start parallel computing
     if settings.pool_computing
     parpool;
@@ -51,14 +51,14 @@ try
   % get the locations x's
   [final_x,fval,exitFlag,output]=simulannealbnd(ObjectiveFunction,x,lb,ub,options);
   % get the algorithem results
-   [y0,y1,y2,y3,y4,y5,y6]=WCPP(final_x);
+   [y0,y1,y2,y3,y4,y5,y6]=Map_WIfi_LTE(final_x);
    all_best=[y0,y1,y2,y3,y4,y5,y6];
   %get time
   time=toc;
-catch ME
-    disp(ME.message);
-    disp('Crashed!')
-end
+% catch ME
+%     disp(ME.message);
+%     disp('Crashed!')
+% end
 
 % end parallel computing
 if settings.pool_computing

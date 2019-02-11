@@ -8,7 +8,7 @@ for i=1:n
     x0(i)=r;
 end
 
-[y0,y1,y2,y3,y4,y5,y6]=WCPP(x0);
+[y0,y1,y2,y3,y4,y5,y6]=Map_WIfi_LTE(x0);
 z0=[x0 y0];
 k=0;
 xk=x0;
@@ -45,7 +45,7 @@ while (k<m)
         zt=t.*zk+(1-t).*z;
         xt=zt(1:n);
         yt=zt(n+1);
-        [w,y1,y2,y3,y4,y5,y6]=WCPP(xt);
+        [w,y1,y2,y3,y4,y5,y6]=Map_WIfi_LTE(xt);
 
         funceval=funceval+1;
         if (w<yt)&(w<ybest)

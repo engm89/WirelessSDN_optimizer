@@ -1,4 +1,4 @@
-function [val,val1,val2,val3,val4,val5,val6] = Copy_of_WIfi_LTE(x)
+function [val,val1,val2,val3,val4,val5,val6] = Numric_WIfi_LTE(x)
 
 global Operator1_coefficient_parameters  Operator2_coefficient_parameters ...
        wOperator1_bts_locations lOperator2_bts_locations M1 M2 M3;
@@ -146,10 +146,10 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     %Lill
     lambda_l_tilda=lambda_l*beta_l;
     Lill=@(s,tu)exp(-2.*lambda_l_tilda.*integral( @(r) r.*s.*pl.*r.^(-alpa)./(1+s.*pl.*r.^(-alpa)),abs(tu),inf));
-   
+    %Lill_SOL = @(tu)Lill(s_fun(tu),tu);
     Lill_SOL = @(tu)arrayfun(@(tu)Lill(s_fun(tu),tu),tu);
-
-   % ex1=integral(Lill_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+   % fplot(Lill_SOL)
+    ex1=integral(Lill_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
 
     %Liwl
     Nw_top=pi*integral( @(x) x.^(2./alpa).*exp(-x),0,inf).*integral( @(x) x.^(-2./alpa).*exp(-x),0,inf);
@@ -159,7 +159,7 @@ function val=LTE_AverageLinkFailure(controller_placement,bts_locations,w_control
     Liwl=@(s,tu) exp(-lambda_w.*(bw_tag.*G(0,pi,0,abs(tu),s,pw,pl,abs(tu),gamma_w_ed,tu)+beta_w.*Z(s,abs(tu),pw)));
     Liwl_SOL = @(tu)arrayfun(@(tu)Liwl(s_fun(tu),tu),tu);
 
-    %ex2=integral(Liwl_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    ex2=integral(Liwl_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
 
     
     SOL = @(tu) arrayfun(@(tu) Lill_SOL(tu).*Liwl_SOL(tu)...
@@ -173,11 +173,14 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 function val=indeicator(tu,delta_l) 
-    v=[tu,0];
-    val=v(find(v<delta_l,1,'first'))*(abs(tu)-delta_l);
+    v=[abs(tu),0];
+    val=v(find(v<abs(delta_l),1,'first'))*(abs(tu)-delta_l);
 end
 
 function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperator2_controller_placement,lOperator2_bts_locations)
+ %   val=1;
+ %   return ;
+    
     global thetha_l alpa beta_l pl beta_w pw gamma_w_cs gamma_w_ed;
     syms tu r fiii;
     
@@ -187,9 +190,9 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
     
     
     s_fun=@(tu)((thetha_l*(abs(tu)^alpa))/pl);  
-    A=@(c1,c2,c3,tu,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
-    G=@(a1,a2,b1,b2,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,tu,r,fiii)./(1+r.^alpa./s.*p),a1,a2,b1,b2);
-    %
+    A=@(c1,c2,c3,r,fiii) 1-exp(-(c3/c1)*(r.^2+c2^2-r.*c2.*cos(fiii)).^(alpa/2));
+    G=@(a1,a2,b1,b2,s,p,c1,c2,c3,tu,r,fiii) integral2(@(r,fiii) 2.*r.*A(c1,c2,c3,r,fiii)./(1+r.^alpa./s.*p),a1,a2,b1,b2);
+    
     % check the order of integration TODO
     
     % Liww                             
@@ -199,8 +202,7 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
     
     LIWW=@(tu) exp(-beta_w.*lambda_w.*G_SOL(tu));
     LIWW_SOL = @(tu) arrayfun(LIWW,tu);
-
-    %exp1=integral(LIWW_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+    exp1=integral(LIWW_SOL,0,inf);
     
     
   %  Lilw
@@ -219,9 +221,8 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
    
    Lilw=@(tu) exp(beta_l.*lambda_l.*(G_Lilw1_SOL(tu)-G_Lilw2_SOL(tu)));
    Lilw_SOL = @(tu)arrayfun(Lilw,tu);
+   exp2=integral(Lilw_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
 
-   %exp2=integral(Lilw_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
- 
    
    %secend_exp
 
@@ -237,12 +238,12 @@ function val=Wifi_AverageLinkFailure(controller_placement,bts_locations,lOperato
    exp_expression=@(tu) ((1-exp(-lambda_w.*(Nw_top-Nw_tilda_top(tu))))./(lambda_w.*(Nw_top-Nw_tilda_top(tu)))).*(2./sqrt(pi)).*t_fun;
   
    exp3_SOL = @(tu)arrayfun(exp_expression,tu);
-   %exp3=integral(exp3_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
+   exp3=integral(exp3_SOL,0,inf,'RelTol',1e-8,'AbsTol',1e-13);
 
    SOL = @(tu)arrayfun(@(tu)( LIWW_SOL(tu).*Lilw_SOL(tu)*exp3_SOL(tu)...
         .*2.*pi.*lambda_w.*tu.*exp(-pi.*lambda_w.*(tu^2))),tu);
    
-   val=integral(SOL,0,inf);
+   val=1;%integral(SOL,0,inf);
     
         %
     disp(val)
